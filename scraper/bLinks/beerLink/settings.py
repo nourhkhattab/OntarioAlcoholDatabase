@@ -6,10 +6,11 @@
 #     http://doc.scrapy.org/topics/settings.html
 #
 
-BOT_NAME = 'beer'
+BOT_NAME = 'beerLink'
 
-SPIDER_MODULES = ['beer.spiders']
-NEWSPIDER_MODULE = 'beer.spiders'
+SPIDER_MODULES = ['beerLink.spiders']
+NEWSPIDER_MODULE = 'beerLink.spiders'
+ITEM_PIPELINES = { 'beerLink.pipelines.LinkPipeline':100}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'tdsb (+http://www.yourdomain.com)'

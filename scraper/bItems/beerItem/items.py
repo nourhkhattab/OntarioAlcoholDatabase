@@ -8,6 +8,8 @@ from scrapy.item import Item, Field
 class BeerItem(Item):
 	link = Field()
         vol = Field()
+        form = Field()
+        amount = Field()
         price = Field()
         name = Field()
         Category = Field()

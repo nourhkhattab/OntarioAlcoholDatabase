@@ -1,24 +1,34 @@
 from scrapy.spider import Spider
 from scrapy.selector import Selector
-from beer.items import BeerItem
+from ..items import BeerItem
 from scrapy.http import Request
 from scrapy.cmdline import execute
+from db.oadb import OADB
 import codecs
-class DmozSpider(Spider):
+class BeerItems(Spider):
 	name = "chug"
 	allowed_domains = ["thebeerstore.ca"]
-	start_urls = [
-		"http://www.thebeerstore.ca/beers/search/all",
-	]
 
-	def gen_drink_callback(self, response):
+        def __init__(self):
+            self.db = OADB()
+            self.start_urls = self.db.getBeerLinks()[:2]
+
+
+        def closed(self, reason):
+            self.db.close()
+            
+
+	def parse(self, response):
             sel = Selector(response)
+            link = response.url
 	    for container in sel.xpath('//tr[@class="odd" or  @class="even"]'):
                 item = BeerItem()
                 item['link'] = "www.thebeerstore.ca" + container.xpath('//link[@rel="canonical"]/@href').extract()[0].encode('ascii','replace')
                 rvol = container.xpath('.//td[@class="size"]/text()').extract()[0].encode('ascii','replace')
                 rvol = rvol.replace('?',' ').split()
-                item['vol'] = int(rvol[0]) * int(rvol[-2])
+                item['vol'] = int(rvol[-2])
+                item['amount'] = int(rvol[0])
+                item['form'] = rvol[-3]
                 if (container.xpath('.//td[@class="price"]/text()').extract() == []):
                     item['price'] = float(container.xpath('.//span[@class="sale-price"]/text()').extract()[0].encode('ascii','replace')[10:])
                 else:
@@ -39,8 +49,4 @@ class DmozSpider(Spider):
                     item[label] = val
                 yield item
 
-
-	def parse(self, response):
-            sel = Selector(response)
-            for link in sel.xpath('//div[@class="brands-container"]//a/@href').extract():
-                yield Request('http://thebeerstore.ca' + str(link), callback = self.gen_drink_callback)
+            self.db.setVisited(self.db.getBeerID(link))
