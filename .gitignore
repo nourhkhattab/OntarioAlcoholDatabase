@@ -1,0 +1,4 @@
+_site
+_config.yml
+scraper/items.json
+*.swp
