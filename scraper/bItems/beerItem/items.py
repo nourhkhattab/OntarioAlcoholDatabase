@@ -19,3 +19,4 @@ class BeerItem(Item):
         Brewer = Field()
         Alcohol = Field()
         Attributes = Field()
+        ID = Field()

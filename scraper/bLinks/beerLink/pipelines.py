@@ -17,6 +17,6 @@ class LinkPipeline(object):
         self.db.close()
 
     def process_item(self, item, spider):
-        self.db.addBeerLink(item['link'])
+        self.db.addBeerLink(item['link'].encode("UTF-8", "replace"))
         return item
 

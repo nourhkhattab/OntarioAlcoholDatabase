@@ -15,5 +15,5 @@ class BeerLinks(Spider):
             sel = Selector(response)
             item = LinkItem()
             for link in sel.xpath('//div[@class="brands-container"]//a/@href').extract():
-                item['link'] = 'http://thebeerstore.ca' + str(link)
+                item['link'] = 'http://www.thebeerstore.ca' + str(link)
                 yield item

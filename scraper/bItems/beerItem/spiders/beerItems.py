@@ -5,6 +5,7 @@ from scrapy.http import Request
 from scrapy.cmdline import execute
 from db.oadb import OADB
 import codecs
+from scrapy import log
 class BeerItems(Spider):
 	name = "chug"
 	allowed_domains = ["thebeerstore.ca"]
@@ -21,9 +22,11 @@ class BeerItems(Spider):
 	def parse(self, response):
             sel = Selector(response)
             link = response.url
+            dID = self.db.getID(link)
 	    for container in sel.xpath('//tr[@class="odd" or  @class="even"]'):
                 item = BeerItem()
-                item['link'] = "www.thebeerstore.ca" + container.xpath('//link[@rel="canonical"]/@href').extract()[0].encode('ascii','replace')
+                item['ID'] = dID
+                item['link'] = "http://www.thebeerstore.ca" + str(container.xpath('.//td[@class="link"]/a/@href').extract()[0])
                 rvol = container.xpath('.//td[@class="size"]/text()').extract()[0].encode('ascii','replace')
                 rvol = rvol.replace('?',' ').split()
                 item['vol'] = int(rvol[-2])
@@ -49,4 +52,4 @@ class BeerItems(Spider):
                     item[label] = val
                 yield item
 
-            self.db.setVisited(self.db.getBeerID(link))
+            self.db.setVisited(dID)
