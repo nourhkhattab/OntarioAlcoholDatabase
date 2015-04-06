@@ -1,2 +1,44 @@
 *.swp
 *.pyc
+*.rbc
+capybara-*.html
+.rspec
+/site/capybara-*.html
+/site/.rspec
+/site/log
+/site/tmp
+/site/db/*.sqlite3
+/site/db/*.sqlite3-journal
+/site/public/system
+/site/coverage/
+/site/spec/tmp
+**.orig
+rerun.txt
+pickle-email-*.html
+/site/**.orig
+/site/rerun.txt
+/site/pickle-email-*.html
+
+# TODO Comment out these rules if you are OK with secrets being uploaded to the repo
+/site/config/initializers/secret_token.rb
+/site/config/secrets.yml
+
+## Environment normalisation:
+/site/.bundle
+/site/vendor/bundle
+
+# these should all be checked in to normalise the environment:
+# Gemfile.lock, .ruby-version, .ruby-gemset
+
+# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
+/site/.rvmrc
+
+# if using bower-rails ignore default bower_components path bower.json files
+/site/vendor/assets/bower_components
+*.bowerrc
+/site/*.bowerrc
+/site/bower.json
+
+# Ignore pow environment settings
+.powenv
+/site/.powenv
