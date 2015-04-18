@@ -1,9 +1,11 @@
 import sqlite3
+import json
 
 class OADB:
 
     def __init__(self):
         self.conn = sqlite3.connect("db/oadb.db")
+        self.conn.row_factory = sqlite3.Row
         self.c = self.conn.cursor()
         self.c.execute('CREATE TABLE IF NOT EXISTS links (ID INTEGER PRIMARY KEY AUTOINCREMENT, Link TEXT UNIQUE, Alive INTEGER DEFAULT 1, LastScraped INTEGER, Site INTEGER)')
         self.c.execute('CREATE TABLE IF NOT EXISTS items (ID INTEGER PRIMARY KEY AUTOINCREMENT, LID INTEGER, Link TEXT, AID INTEGER DEFAULT 1, Discont INTEGER DEFAULT 0,Name Text, Price REAL, Amount INTEGER, Volume INTEGER, Format Text, Alcohol REAL, Type TEXT, Cat1 TEXT, Cat2 TEXT, CONSTRAINT fkey FOREIGN KEY(LID) REFERENCES links(ID) ON DELETE CASCADE)')
@@ -87,6 +89,11 @@ class OADB:
         self.c.execute('UPDATE links SET LastScraped = CURRENT_TIMESTAMP WHERE ID = ?', t)
         self.conn.commit()
 
+    def getItems(self):
+        self.c.execute("SELECT * from items")
+        r = self.c.fetchall()
+        rows = [dict(rec) for rec in r]
+        return json.dumps(rows)
 
     def endBeerLinks(self):
         self.c.execute('DELETE FROM links WHERE Alive = 0 AND Site = 1')
