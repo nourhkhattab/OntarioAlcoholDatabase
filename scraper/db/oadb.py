@@ -90,10 +90,14 @@ class OADB:
         self.conn.commit()
 
     def getItems(self):
-        self.c.execute("SELECT * from items")
+        self.c.execute("SELECT items.*, links.link AS sLink from items INNER JOIN links ON items.LID=links.ID")
         r = self.c.fetchall()
         rows = [dict(rec) for rec in r]
-        return json.dumps(rows)
+        d = {"data":rows}
+        f = open("jdata.json", 'w')
+        json.dump(d, f)
+        f.close()
+        return json.dumps(d)
 
     def endBeerLinks(self):
         self.c.execute('DELETE FROM links WHERE Alive = 0 AND Site = 1')

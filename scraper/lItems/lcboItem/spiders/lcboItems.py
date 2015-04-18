@@ -39,15 +39,17 @@ class LCBOItemSpider(Spider):
                 item["amount"] = int(container.re('\d+(?=x\d+)')[0])
             item["vol"] = int(container.re('\d+(?= mL)')[0])
             item["name"] = container.xpath('//span[@class="titlefont"]/text()').extract()[0]
-            if len(container.re('(?<=, )[^,]+(?=,[^,]+\d+\.\d+%)')) > 0 and"<br>" in container.re('(?<=, )[^,]+(?=,[^,]+\d+\.\d+%)')[0]:
-                item["Type"] = container.re('[^,\n\s]+(?=,[^,]+\d+\.\d+%)')[0]
-                item["cat1"] = container.re('(?<=, )[^,]+(?=<br>[^,]+\d+\.\d+%)')[0]
-            elif "<br>" in container.re('(?<=, )[^,]+(?=<br>[^,]+\d+\.\d+%)')[0] :
-                item["Type"] = container.re('[^,\n\s]+(?=<br>[^,]+\d+\.\d+%)')[0]
-            else:
-                item["Type"] = container.re('[^,\n\s]+(?=,[^,]+\d+\.\d+%)')[0]
-                item["cat1"] = container.re('(?<=, )[^,]+(?=,[^,]+\d+\.\d+%)')[0]
-                item["cat2"] = container.re('(?<=, )[^,]+(?=<br>[^,]+\d+\.\d+%)')[0]
+            line = container.re('[^(>|\r|\n|\t)]+(?=<br>[^,]+\d+\.\d+%)')
+            line = line[-1].lstrip().split(",")
+            i = 0
+            for e in line:
+                if i == 0:
+                    item["Type"] = e
+                elif i == 1:
+                    item["cat1"] = e.lstrip()
+                elif i == 2:
+                    item["cat2"] = e.lstrip()
+                i+= 1
 
 	    yield item
             self.db.setVisited(dID)

@@ -5,6 +5,7 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
 	<link rel="stylesheet" href="http://datatables.net/release-datatables/extensions/ColVis/css/dataTables.colVis.css">
+	<link rel="stylesheet" href="https://cdn.datatables.net/responsive/1.0.5/css/dataTables.responsive.css">
 	<style type="text/css" class="init">
 	</style>
 	<script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
@@ -12,12 +13,15 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 	<script src="https://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js"></script>
 	<script src="http://datatables.net/release-datatables/extensions/ColVis/js/dataTables.colVis.js"></script>
+	<script src="https://cdn.datatables.net/responsive/1.0.5/js/dataTables.responsive.js"></script>
+
 
 
 	<script type="text/javascript" language="javascript" class="init">
+	var myTable;
 $(document).ready(function() {
-$('#example').dataTable( {
-        "ajax": "jdata.txt",
+myTable = $('#example').dataTable( {
+        "ajax": "jdata.json",
 				"deferRender": true,
 				"dom": '<"row"<"col-md-4" l><"pull-left col-md-4 col-md-offset-2 col-lg-offset-4 " fC>> tip',
 				//"dom": 'Clfrtip',
@@ -26,11 +30,27 @@ $('#example').dataTable( {
 						"lengthMenu":"<h3>Number Of Items</h3> _MENU_"
 				},
 				"processing": true,
-				"autoWidth": false,
+				"autoWidth": false, 
 				"responsive":"true",
         "columns": [
-            { "data": "Link", "bSearchable": false , "contentPadding": "LCBO" },
-            { "data": "Name" , "bSearchable": true},
+            { "data": "Link", "bSearchable": false , "contentPadding": "LCBO" ,"orderable": false,
+							"render": function(data, type, full, meta){
+								if (data[0] == "h") {
+									return "<a target='_blank' href='"+data+"'> Beer Store </a>";
+								} else {
+									return "<a target='_blank' href='http://www.foodanddrink.ca/lcbo-ear/lcbo/product/inventory/searchResults.do?language=EN&itemNumber="+data+"'> LCBO </a>";
+								}
+							}
+						},
+            { "data": "Name" , "bSearchable": true,
+							"render": function(data, type, full, meta){
+								if (type === 'display'){
+									return "<a target='_blank' href='"+full["sLink"]+"'>"+JSON.parse('"'+data+'"')+"</a>";
+								} else{
+									return JSON.parse('"'+data+'"');
+								}
+							}
+						},
             { "data": "Price" , "contentPadding": "00000.00", "type":"num", 
 							"render": function(data, type, full, meta){
 								if (type === 'sort'){
@@ -89,22 +109,55 @@ $('#example').dataTable( {
 								}
 							}
 						},
-            { "data": "Type" , "contentPadding": "Coolers"},
-            { "data": "Cat1" , "contentPadding": "Champagne"},
-            { "data": "Cat2" , "contentPadding": "SUB_CATEGORY"}
-        ]
+            { "data": "Type" , "contentPadding": "Coolers", "className": "cat",
+							"render": function(data, type, full, meta){
+								return JSON.parse('"'+data+'"');
+							}
+						},
+            { "data": "Cat1" , "contentPadding": "Champagne", "className": "cat",
+							"render": function(data, type, full, meta){
+								return JSON.parse('"'+data+'"');
+							}
+						},
+            { "data": "Cat2" , "contentPadding": "SUB_CATEGORY", "className": "cat",
+							"render": function(data, type, full, meta){
+								return JSON.parse('"'+data+'"');
+							}
+						}
+        ],
+				initComplete: function () {
+					this.api().columns(".cat").every( function () {
+						var column = this;
+						console.log(this);
+						var select = $('<select><option value=""></option></select>').appendTo( $("#f1")).on( 'change', function () {
+							var val = $.fn.dataTable.util.escapeRegex($(this).val());
+							column.search(val ? '^'+val+'$' : '', true, false).draw();
+						} );
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
     } );
+
 } );
+
 	</script>
 </head>
 <body>
-
-<h1>My First Heading</h1>
-<p>My first paragraph.</p>
-<table id="example" class="table table-striped table-bordered text-center">
-        <thead>
-            <tr>
-							<th>Link</th>	
+	<div class="container-responsive">
+		<h3>Type</h3>
+		<div id ="f1"></div>
+		<h3> Category </h3>
+		<div id ="f2"></div>
+		<h3> Sub-Category </h3>
+		<div id ="f3"></div>
+		<h1>My First Heading</h1>
+		<p>My first paragraph.</p>
+		<table id="example" class="table table-striped table-bordered text-center dt-responsive">
+				<thead>
+						<tr>
+							<th>Locations</th>	
 							<th>Product Name</th>	
 							<th>Price (CAD)</th>	
 							<th>Vol (mL)</th>	
@@ -115,8 +168,9 @@ $('#example').dataTable( {
 							<th>Type</th>	
 							<th>Category</th>
 							<th>Sub-Category</th>
-            </tr>
-        </thead>
-    </table>
+						</tr>
+				</thead>
+		</table>
+	</div>
 </body>
 </html>
