@@ -2,12 +2,11 @@ from twisted.internet import reactor
 from scrapy.crawler import Crawler
 from scrapy import log, signals
 from scrapy import settings as SS
-from bLinks.beerLink.spiders.beerLinks import BeerLinks
+from lLinks.lcboLink.spiders.lcboLinks import LCBOLinkSpider
 from scrapy.utils.project import get_project_settings
-from db.oadb import OADB
 
-spider = BeerLinks()
-settings = SS.Settings({"ITEM_PIPELINES":{'bLinks.beerLink.pipelines.LinkPipeline':300}})
+spider = LCBOLinkSpider()
+settings = SS.Settings({"ITEM_PIPELINES":{'lLinks.lcboLink.pipelines.LcboLinkPipeline':300}})
 crawler = Crawler(settings)
 crawler.signals.connect(reactor.stop, signal=signals.spider_closed)
 crawler.configure()

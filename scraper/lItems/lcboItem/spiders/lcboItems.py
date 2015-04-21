@@ -20,6 +20,8 @@ class LCBOItemSpider(Spider):
             sel = Selector(response)
             item = LcboItem()
             link = response.url
+	    if "gift" in link or "vintagesshoponline":
+                return
             dID = self.db.getID(link)
             item['ID'] = dID
             sel = Selector(response)
@@ -29,7 +31,11 @@ class LCBOItemSpider(Spider):
                 # code for discontinued
                 self.db.setVisited(dID)
                 return
-            item["price"] = float(container.re('(?<=\$ )[\d|\.]*')[0])
+            try:
+                item["price"] = float(container.re('(?<=\$ )[\d|\.]*')[0])
+            except:
+                self.db.setVisited(dID)
+                return
             item["alc"] = float(container.re('\d+\.\d+(?=%)')[0])
             item["form"] = container.re('(?<=mL ).*(?=\r)')[0]
             amount = container.re('\dx\d')
@@ -39,17 +45,20 @@ class LCBOItemSpider(Spider):
                 item["amount"] = int(container.re('\d+(?=x\d+)')[0])
             item["vol"] = int(container.re('\d+(?= mL)')[0])
             item["name"] = container.xpath('//span[@class="titlefont"]/text()').extract()[0]
-            line = container.re('[^(>|\r|\n|\t)]+(?=<br>[^,]+\d+\.\d+%)')
-            line = line[-1].lstrip().split(",")
-            i = 0
-            for e in line:
-                if i == 0:
-                    item["Type"] = e
-                elif i == 1:
-                    item["cat1"] = e.lstrip()
-                elif i == 2:
-                    item["cat2"] = e.lstrip()
-                i+= 1
+            line = container.re('[^>]+(?=<br>[^,]+\d+\.\d+%)')
+	    try:
+                line = line[-1].lstrip().split(",")
+                i = 0
+                for e in line:
+                    if i == 0:
+                        item["Type"] = e
+                    elif i == 1:
+                        item["cat1"] = e.lstrip()
+                    elif i == 2:
+                        item["cat2"] = e.lstrip()
+                    i+= 1
+            except:
+                item["Type"] = line   
 
 	    yield item
             self.db.setVisited(dID)
