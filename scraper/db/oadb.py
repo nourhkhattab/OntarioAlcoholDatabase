@@ -90,7 +90,7 @@ class OADB:
         self.conn.commit()
 
     def getItems(self):
-        self.c.execute("SELECT items.*, links.link AS sLink from items INNER JOIN links ON items.LID=links.ID")
+        self.c.execute("SELECT items.Name as N, items.Format as F, items.Price as P, items.Cat1 as C1, items.Cat2 as C2, items.Type as T, items.Volume as V, items.Amount as Q, items.Alcohol as A, CASE WHEN (links.Site = 0) THEN items.Link ELSE substr(items.Link,43) END as L, CASE WHEN (links.Site = 0) THEN items.Link ELSE substr(links.link,34) END AS S from items INNER JOIN links ON items.LID=links.ID")
         r = self.c.fetchall()
         rows = [dict(rec) for rec in r]
         d = {"data":rows}

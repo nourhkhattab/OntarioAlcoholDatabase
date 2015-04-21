@@ -1,176 +1,347 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>OADB</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
-	<link rel="stylesheet" href="http://datatables.net/release-datatables/extensions/ColVis/css/dataTables.colVis.css">
-	<link rel="stylesheet" href="https://cdn.datatables.net/responsive/1.0.5/css/dataTables.responsive.css">
-	<style type="text/css" class="init">
-	</style>
-	<script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
-	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.6/js/jquery.dataTables.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-	<script src="https://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-	<script src="http://datatables.net/release-datatables/extensions/ColVis/js/dataTables.colVis.js"></script>
-	<script src="https://cdn.datatables.net/responsive/1.0.5/js/dataTables.responsive.js"></script>
+	<head>
+		<title>Ontario Alcohol Database</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/dataTables.bootstrap.css">
+		<link rel="stylesheet" href="css/dataTables.colVis.min.css">
+		<link rel="stylesheet" href="css/dataTables.responsive.css">
+		<style id="hideThings">
+			.hCLang{display:none}
+		</style>
+
+		<script type="text/javascript" language="javascript" src="js/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" language="javascript" src="js/jquery.dataTables.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/dataTables.bootstrap.js"></script>
+		<script src="js/dataTables.colVis.min.js"></script>
+		<script src="js/dataTables.responsive.min.js"></script>
 
 
 
-	<script type="text/javascript" language="javascript" class="init">
-	var myTable;
-$(document).ready(function() {
-myTable = $('#example').dataTable( {
-        "ajax": "jdata.json",
-				"deferRender": true,
-				"dom": '<"row"<"col-md-4" l><"pull-left col-md-4 col-md-offset-2 col-lg-offset-4 " fC>> tip',
-				//"dom": 'Clfrtip',
-				"language":{
-						"search":"<h3>Search</h3>",
-						"lengthMenu":"<h3>Number Of Items</h3> _MENU_"
-				},
-				"processing": true,
-				"autoWidth": false, 
-				"responsive":"true",
-        "columns": [
-            { "data": "Link", "bSearchable": false , "contentPadding": "LCBO" ,"orderable": false,
-							"render": function(data, type, full, meta){
-								if (data[0] == "h") {
-									return "<a target='_blank' href='"+data+"'> Beer Store </a>";
-								} else {
-									return "<a target='_blank' href='http://www.foodanddrink.ca/lcbo-ear/lcbo/product/inventory/searchResults.do?language=EN&itemNumber="+data+"'> LCBO </a>";
+		<script type="text/javascript" language="javascript">
+			var myTable;
+			$(document).ready(function() {
+				myTable = $('#example').dataTable( {
+					"ajax": "jdata.json",
+					"deferRender": true,
+					"dom": '<"row"<"col-md-4" l><"col-md-4 langS"><"pull-left col-md-4" fC>> tip',
+					//"dom": '<"row"<"col-md-4" l><"pull-left col-md-4 col-md-offset-2 col-lg-offset-4 " fC>> tip',
+					"language":{
+							"search":"<h3>Search</h3>",
+							"lengthMenu":"<h3>Number Of Items</h3> _MENU_"
+					},
+					"processing": true,
+					"autoWidth": false, 
+					"responsive":"true",
+					"columns": [
+							{ "data": "L", "bSearchable": false , "contentPadding": "LCBO" ,"orderable": false,
+								"render": function(data, type, full, meta){
+									if (full["S"] == data) {
+										return "<a target='_blank' href='http://www.foodanddrink.ca/lcbo-ear/lcbo/product/inventory/searchResults.do?language=EN&itemNumber="+data+"'> LCBO </a>";
+									} else {
+										return "<a target='_blank' href='http://www.thebeerstore.ca/locations?pack="+data+"'> Beer Store </a>";
+									}
 								}
-							}
-						},
-            { "data": "Name" , "bSearchable": true,
-							"render": function(data, type, full, meta){
-								if (type === 'display'){
-									return "<a target='_blank' href='"+full["sLink"]+"'>"+JSON.parse('"'+data+'"')+"</a>";
-								} else{
+							},
+							{ "data": "N" , "bSearchable": true,
+								"render": function(data, type, full, meta){
+									lnk = "";
+									if (full["S"] == full["L"]){
+										lnk = "http://www.foodanddrink.ca/lcbo-ear/lcbo/product/details.do?language=EN&itemNumber=" + full["S"];
+									} else {
+										lnk = "http://www.thebeerstore.ca/beers/" + full["S"];
+									}
+									if (type === 'display'){
+										return "<a target='_blank' href='"+lnk+"'>"+JSON.parse('"'+data+'"')+"</a>";
+									} else{
+										return JSON.parse('"'+data+'"');
+									}
+								}
+							},
+							{ "data": "P" , "contentPadding": "00000.00", "type":"num", "bSearchable": false, 
+								"render": function(data, type, full, meta){
+									if (type === 'sort'){
+										return data;
+									} else {
+										return "$" +data.toFixed(2);
+									}
+								}
+							},
+							{ "data": "V" , "contentPadding": "0000.00", "type":"num",
+								"render": function(data, type, full, meta){
+									tVol = full['Q'] * data;
+									if (type == 'sort'){
+										return tVol;
+									} else {
+										return tVol.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " mL";
+										
+										if (tVol < 1000){
+											return tVol + " mL";
+										} else {
+											return tVol/1000 + " L";
+										}
+									}
+								}
+							},
+							{ "data": "F" , "contentPadding": "One 20000mL Keg", "type":"num",
+								"render": function(data, aType, full, meta){
+									quantity = full['Q'];
+									vol = full['V'];
+									type = full['T'];
+									if (aType === 'sort'){
+										return full['Q'];
+									} else if (aType === 'filter'){
+										return data;
+									} else {
+										rData = "<div class='hNLang'>";
+										pVol = (vol > 1000 ? vol/1000 + " L " : vol + " mL ") ; 
+										if (quantity > 1){
+											rData += quantity + " x " + pVol + data.charAt(0).toUpperCase() + data.slice(1) + "s";
+										} else {
+											rData +=  "One " + pVol + data.charAt(0).toUpperCase() + data.slice(1);
+										}
+										rData += "</div>";
+										cFirst = "";
+										cLast = "";
+										if (quantity == 24){
+											cFirst = "A Two-Four of ";
+											cLast = "s";
+										} else if (quantity == 2){
+											cFirst = "Two ";
+											cLast = "s";
+										} else if (quantity == 6){
+											cFirst = "Six Pack of ";
+											cLast = "s";
+										} else if (quantity == 12){
+											cFirst = "Twelve Pack of ";
+											cLast = "s";
+										} else if (quantity == 28){
+											cFirst = "Twenty-Eight Pack of ";
+											cLast = "s";
+										} else if (quantity > 1){
+											cFirst = quantity + " x ";
+											cLast = "s";
+										} else {
+											cFirst = "One ";
+										}
+										cData = pVol + data.charAt(0).toUpperCase() + data.slice(1);
+										if (vol < 600 && vol > 400 && data.toUpperCase().indexOf("CAN") > -1){
+											cData = "Tall Boy";
+										} else if (vol < 400 && vol > 300 && data.toUpperCase().indexOf("BOTTLE") > -1 && type.indexOf("Beer") > -1){
+											cData = "Regular Beer Bottle";
+										} else if (vol < 400 && vol > 300 && data.toUpperCase().indexOf("BOTTLE") > -1 && type.indexOf("Beer") > -1){
+											cData = "Regular Beer Bottle";
+										} else if (vol == 750 && type.indexOf("Wine") == -1){
+											cData = "Two-Six";
+										} else if (vol == 1140 && type.indexOf("Wine") == -1){
+											cData = "Fourty";
+										} else if (vol == 1750 && type.indexOf("Wine") == -1){
+											cData = "Sixty";
+										} else if (vol == 750 && type.indexOf("Wine") != -1){
+											cData = "Regular Wine Bottle";
+										} else if (vol == 375 && type.indexOf("Beer") == -1){
+											cData = "Mickey";
+										} else if (vol == 58600 && data.indexOf("Keg") >-1){
+											cData = "Big Ass Keg";
+										} else if (vol == 30000 && data.indexOf("Keg") >-1){
+											cData = "Medium Keg";
+										} else if (vol == 20000 && data.indexOf("Keg") >-1){
+											cData = "Small but not Heineken Mini Keg small Keg";
+										}
+
+										rData+="<div class='hCLang'>"+ cFirst + cData + cLast+"</div>";
+
+										return rData;
+									}
+								}
+							},
+							{ "data": "A" , "contentPadding": "00.0", "type":"num",
+								"render": function(data, type, full, meta){
+									if (type === 'sort'){
+										return data;
+									} else {
+										return data.toFixed(1) + "%";
+									}
+								}
+							},
+							{ "data": null , "contentPadding": "0000.00", "type":"num",
+								"render": function(data, type, full, meta){
+									if (type === 'sort'){
+										return full['A']*0.01*full['Q']*full['V'];
+									} else {
+										return (full['A']*0.01*full['Q']*full['V']).toFixed(2) + " mL";
+									}
+								}
+							},
+							{ "data": null , "contentPadding": "00.00", "type":"num",
+								"render": function(data, type, full, meta){
+									if (type === 'sort'){
+										return (full['A']*0.01*full['Q']*full['V'])/ full['P'];
+									} else {
+										return ((full['A']*0.01*full['Q']*full['V'])/full['P']).toFixed(2) + " mL/$";
+									}
+								}
+							},
+							{ "data": "T" , "contentPadding": "Coolers", "className": "cat",
+								"render": function(data, type, full, meta){
+									return JSON.parse('"'+data+'"');
+								}
+							},
+							{ "data": "C1" , "contentPadding": "Champagne", "className": "cat",
+								"render": function(data, type, full, meta){
+									return JSON.parse('"'+data+'"');
+								}
+							},
+							{ "data": "C2" , "contentPadding": "SUB_CATEGORY", "className": "cat",
+								"render": function(data, type, full, meta){
 									return JSON.parse('"'+data+'"');
 								}
 							}
-						},
-            { "data": "Price" , "contentPadding": "00000.00", "type":"num", 
-							"render": function(data, type, full, meta){
-								if (type === 'sort'){
-									return data;
-								} else {
-									return "$" +data.toFixed(2);
-								}
-							}
-						},
-            { "data": "Volume" , "contentPadding": "0000.00", "type":"num",
-							"render": function(data, type, full, meta){
-								if (type == 'sort'){
-									return full['Amount'] * data;
-								} else {
-									return full['Amount'] * data + "mL";
-								}
-							}
-						},
-            { "data": "Format" , "contentPadding": "bagnbox", "type":"num",
-							"render": function(data, type, full, meta){
-								if (type === 'sort'){
-									return full['Amount'];
-								} else {
-									if (full['Amount'] > 1){
-										return full['Amount'] + " x " + full['Volume'] + "mL "+ data.charAt(0).toUpperCase() + data.slice(1) + "s";
-									} else {
-										return "One " + full['Volume'] + "mL "+ data.charAt(0).toUpperCase() + data.slice(1);
-									}
-								}
-							}
-						},
-            { "data": "Alcohol" , "contentPadding": "00.0", "type":"num",
-							"render": function(data, type, full, meta){
-								if (type === 'sort'){
-									return data;
-								} else {
-									return data.toFixed(1) + "%";
-								}
-							}
-						},
-            { "data": null , "contentPadding": "0000.00", "type":"num",
-							"render": function(data, type, full, meta){
-								if (type === 'sort'){
-									return full['Alcohol']*0.01*full['Amount']*full['Volume'];
-								} else {
-									return (full['Alcohol']*0.01*full['Amount']*full['Volume']).toFixed(2) + " mL";
-								}
-							}
-						},
-            { "data": null , "contentPadding": "00.00", "type":"num",
-							"render": function(data, type, full, meta){
-								if (type === 'sort'){
-									return (full['Alcohol']*0.01*full['Amount']*full['Volume'])/ full['Price'];
-								} else {
-									return ((full['Alcohol']*0.01*full['Amount']*full['Volume'])/full['Price']).toFixed(2) + " mL/$";
-								}
-							}
-						},
-            { "data": "Type" , "contentPadding": "Coolers", "className": "cat",
-							"render": function(data, type, full, meta){
-								return JSON.parse('"'+data+'"');
-							}
-						},
-            { "data": "Cat1" , "contentPadding": "Champagne", "className": "cat",
-							"render": function(data, type, full, meta){
-								return JSON.parse('"'+data+'"');
-							}
-						},
-            { "data": "Cat2" , "contentPadding": "SUB_CATEGORY", "className": "cat",
-							"render": function(data, type, full, meta){
-								return JSON.parse('"'+data+'"');
-							}
-						}
-        ],
-				initComplete: function () {
-					this.api().columns(".cat").every( function () {
-						var column = this;
-						console.log(this);
-						var select = $('<select><option value=""></option></select>').appendTo( $("#f1")).on( 'change', function () {
-							var val = $.fn.dataTable.util.escapeRegex($(this).val());
-							column.search(val ? '^'+val+'$' : '', true, false).draw();
+					],
+					initComplete: function () {
+						$(".langS").append('<h3> Format Language</h3><div class="btn-group btn-group-justified" role="group" aria-label="..."><div class="btn-group" role="group"><button type="button" class="btn btn-default" id="cB" onclick="cChange()">Canadian Slang</button></div><div class="btn-group" role="group"><button type="button" class="btn btn-default" id="nB" onclick="nChange()" disabled>Metric</button></div></div>Canadian Slang is currently in Beta');
+						i = 0;
+						this.api().columns(".cat").every( function () {
+							i++;
+							var column = this;
+							var select = $('<select class="form-control"><option value=""></option></select>').appendTo( $("#f"+i)).on( 'change', function () {
+								var val = $.fn.dataTable.util.escapeRegex($(this).val());
+								column.search(val ? '^'+val+'$' : '', true, false).draw();
+							} );
+							column.data().unique().sort().each( function ( d, j ) {
+								select.append( '<option value="'+d+'">'+d+'</option>' );
+							} );
 						} );
-						column.data().unique().sort().each( function ( d, j ) {
-							select.append( '<option value="'+d+'">'+d+'</option>' )
-						} );
-					} );
-				}
-    } );
+					}
+				} );
+			} );
+			function cChange(){
+				$("#hideThings").text(".hNLang{display:none}");
+				$("#cB").prop('disabled', true);
+				$("#nB").prop('disabled', false);
+			}
+			function nChange(){
+				$("#hideThings").text(".hCLang{display:none}");
+				$("#nB").prop('disabled', true);
+				$("#cB").prop('disabled', false);
+			}
 
-} );
+		</script>
+	</head>
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-4">
+					<h1>Ontario Alcohol Database</h1>
+				</div>
+				<!-- Button trigger modal -->
+				<div class="col-md-4 col-md-offset-4">
+					<div class="panel-body center-block">
+						<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+							Help / Instructions / FAQ / Future Additions
+						</button>
+					</div>
+				</div>
+			</div>
 
-	</script>
-</head>
-<body>
-	<div class="container-responsive">
-		<h3>Type</h3>
-		<div id ="f1"></div>
-		<h3> Category </h3>
-		<div id ="f2"></div>
-		<h3> Sub-Category </h3>
-		<div id ="f3"></div>
-		<h1>My First Heading</h1>
-		<p>My first paragraph.</p>
-		<table id="example" class="table table-striped table-bordered text-center dt-responsive">
-				<thead>
-						<tr>
-							<th>Locations</th>	
-							<th>Product Name</th>	
-							<th>Price (CAD)</th>	
-							<th>Vol (mL)</th>	
-							<th>Format</th>	
-							<th>Alcohol (%)</th>	
-							<th>VPA (mL)</th>	
-							<th>VPA/D (mL/$)</th>	
-							<th>Type</th>	
-							<th>Category</th>
-							<th>Sub-Category</th>
-						</tr>
-				</thead>
-		</table>
-	</div>
-</body>
+			<!-- Modal -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h3 class="modal-title" id="myModalLabel">Help / Instructions / FAQ / Future Additions</h3>
+						</div>
+						<div class="modal-body">
+							<div class="container-fluid">
+								Welcome to the Help center for all you help needs.
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Instructions</h3>
+									</div>
+									<div class="panel-body">
+										<p>Sort columns by clicking on the headers</p>
+										<p>Drink for the cheapest amount possible</p>
+										<p>Profit</p>
+									</div>
+								</div>
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Help</h3>
+									</div>
+									<div class="panel-body">
+										<p><b>Check Availability</b> goes to the LCBO or Beer Store site and shows you which stores have the product in stock</p> 
+										<p><b>Product Name</b> goes to the Food and Drink (LCBO) or Beer Store's product page</p> 
+										<p><b>Format</b> is the how many containers are you getting, what those containers are(bottles, cans, ect.) and how big(volume wise) the containers are.</p>
+										<p><b>Alcohol</b> is the alcohol percentage of the beverage</p>
+										<p><b>VPA</b> is Volume of Pure Alcohol in mL</p>
+										<p><b>VPA/D</b> is Volume of Pure Alcohol per Dollar (The bigger the number the more cost efficient)</p>
+									</div>
+								</div>
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">FAQ</h3>
+									</div>
+									<div class="panel-body">
+										<p>I currently have none, so ask me some :)</p>
+									</div>
+								</div>
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Future Additions</h3>
+									</div>
+									<div class="panel-body">
+										<p>Style the show/hide columns</p>
+										<p>Price Range</p>
+										<p>Alcohol Content Range</p>
+										<p>VPA Range</p>
+										<p>VPA/D Range</p>
+										<p>Filter by multiple categories</p>
+										<p>Add Wine Rack</p>
+										<p>Built in suggestion page</p>
+										<p>Suggestions are apprecited</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-4">	
+					<h3>Type</h3>
+					<div id ="f1"></div>
+				</div>
+				<div class="col-md-4">	
+					<h3> Category </h3>
+					<div id ="f2"></div>
+				</div>
+				<div class="col-md-4">	
+					<h3> Sub-Category </h3>
+					<div id ="f3"></div>
+				</div>
+			</div>
+			<table id="example" class="table table-striped table-bordered dt-responsive">
+					<thead>
+							<tr>
+								<th>Check Availability</th>	
+								<th>Product Name</th>	
+								<th>Price (CAD)</th>	
+								<th>Vol</th>	
+								<th>Format</th>	
+								<th>Alcohol</th>	
+								<th>VPA</th>	
+								<th>VPA/D</th>	
+								<th>Type</th>	
+								<th>Category</th>
+								<th>Sub-Category</th>
+							</tr>
+					</thead>
+			</table>
+		</div>
+	</body>
 </html>
