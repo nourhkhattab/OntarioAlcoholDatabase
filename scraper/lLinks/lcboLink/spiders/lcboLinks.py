@@ -8,7 +8,7 @@ class LCBOLinkSpider(Spider):
 	name = "alcoholic-spider"
 	allowed_domains = ["foodanddrink.ca"]
 	start_urls = [
-		"http://www.foodanddrink.ca/lcbo-ear/lcbo/product/searchResults.do?style=LCBO.css&page=1&action=result&sort=sortedProduct&order=1&resultsPerPage=10",
+		"http://www.foodanddrink.ca/lcbo-ear/lcbo/product/searchResults.do?style=LCBO.css&page=1&action=result&sort=sortedProduct&order=1&resultsPerPage=12000",
 	]
 
 	def parse(self, response):

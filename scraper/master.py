@@ -7,8 +7,8 @@ from lLinks.lcboLink.spiders.lcboLinks import LCBOLinkSpider
 from bItems.beerItem.spiders.beerItems import BeerItems
 from lItems.lcboItem.spiders.lcboItems import LCBOItemSpider
 from scrapy.utils.project import get_project_settings
+from db.oadb import OADB
 
-"""
 spider = BeerLinks()
 settings = SS.Settings({"ITEM_PIPELINES":{'bLinks.beerLink.pipelines.LinkPipeline':300}})
 crawler = Crawler(settings)
@@ -38,7 +38,7 @@ crawler.crawl(spider)
 crawler.start()
 log.start()
 reactor.run() # the script will block here until the spider_closed signal was sent
-"""
+
 spider = LCBOItemSpider()
 settings = SS.Settings({"ITEM_PIPELINES":{'lItems.lcboItem.pipelines.LcboItemPipeline':300}})
 crawler = Crawler(settings)
@@ -48,3 +48,7 @@ crawler.crawl(spider)
 crawler.start()
 log.start()
 reactor.run() # the script will block here until the spider_closed signal was sent
+
+db = OADB()
+db.getItems()
+db.close()

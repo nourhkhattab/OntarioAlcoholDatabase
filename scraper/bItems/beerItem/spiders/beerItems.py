@@ -12,7 +12,7 @@ class BeerItems(Spider):
 
         def __init__(self):
             self.db = OADB()
-            self.start_urls = self.db.getBeerLinks()[:2]
+            self.start_urls = self.db.getBeerLinks()
 
 
         def closed(self, reason):

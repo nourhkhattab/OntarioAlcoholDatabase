@@ -11,7 +11,7 @@ class LCBOItemSpider(Spider):
 
 	def __init__(self):
             self.db = OADB()
-            self.start_urls = self.db.getLCBOLinks()[:2]
+            self.start_urls = self.db.getLCBOLinks()
 
         def closed(self, reason):
             self.db.close()

@@ -94,10 +94,10 @@ class OADB:
         r = self.c.fetchall()
         rows = [dict(rec) for rec in r]
         d = {"data":rows}
-        f = open("jdata.json", 'w')
+        f = open("db/jdata.json", 'w')
         json.dump(d, f)
         f.close()
-        return json.dumps(d)
+	return None
 
     def endBeerLinks(self):
         self.c.execute('DELETE FROM links WHERE Alive = 0 AND Site = 1')
