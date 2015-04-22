@@ -93,8 +93,16 @@ class OADB:
         self.c.execute("SELECT items.Name as N, items.Format as F, items.Price as P, items.Cat1 as C1, items.Cat2 as C2, items.Type as T, items.Volume as V, items.Amount as Q, items.Alcohol as A, CASE WHEN (links.Site = 0) THEN items.Link ELSE substr(items.Link,43) END as L, CASE WHEN (links.Site = 0) THEN items.Link ELSE substr(links.link,34) END AS S from items INNER JOIN links ON items.LID=links.ID")
         r = self.c.fetchall()
         rows = [dict(rec) for rec in r]
-        d = {"data":rows}
-        f = open("db/jdata.json", 'w')
+	i = 0
+	j = 5000
+	while i < len(rows)-1:
+            d = {"data":rows[i:i+j]}
+            f = open("db/jdata"+str(int(i/j))+".json", 'w')
+            json.dump(d, f)
+            f.close()
+	    i += j
+        d = {"data":rows[i:]}
+        f = open("db/jdata"+str(int(i/j))+".json", 'w')
         json.dump(d, f)
         f.close()
 	return None
