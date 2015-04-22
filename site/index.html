@@ -53,9 +53,9 @@
 										lnk = "http://www.thebeerstore.ca/beers/" + full["S"];
 									}
 									if (type === 'display'){
-										return "<a target='_blank' href='"+lnk+"'>"+JSON.parse('"'+data+'"')+"</a>";
+										return "<a target='_blank' href='"+lnk+"'>"+JSON.parse('"'+data.replace(new RegExp('"', 'g'), '')+'"')+"</a>";
 									} else{
-										return JSON.parse('"'+data+'"');
+										return JSON.parse('"'+data.replace(new RegExp('"', 'g'), '')+'"');
 									}
 								}
 							},
@@ -226,6 +226,33 @@
 				$("#nB").prop('disabled', true);
 				$("#cB").prop('disabled', false);
 			}
+			$.ajax("jdata1.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
+			$.ajax("jdata2.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
+			$.ajax("jdata3.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
+			$.ajax("jdata4.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
+			$.ajax("jdata5.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
+			$.ajax("jdata6.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
+			$.ajax("jdata7.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
+			$.ajax("jdata8.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
+			$.ajax("jdata9.json").done(function(data){
+				myTable.api().rows.add(data['data']);
+			});
 
 		</script>
 	</head>

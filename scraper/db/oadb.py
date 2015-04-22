@@ -94,8 +94,9 @@ class OADB:
         r = self.c.fetchall()
         rows = [dict(rec) for rec in r]
 	i = 0
-	j = 5000
-	while i < len(rows)-1:
+	tl = len(rows)
+	j = int(tl/10)+1
+	while i+j < tl:
             d = {"data":rows[i:i+j]}
             f = open("db/jdata"+str(int(i/j))+".json", 'w')
             json.dump(d, f)
